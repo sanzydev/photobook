@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Photobook</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animation library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pastel-pink': '#E5A4B3',
+                        'pastel-purple': '#BDA8D2',
+                        'pastel-blue': '#9CBFD9',
+                        'pastel-green': '#A6D5A8',
+                        'pastel-yellow': '#EFD9A1',
+                        'light-pink': '#F8E5E9',
+                        'dark-pink': '#C76F85'
+                    },
+                    fontFamily: {
+                        'pacifico': ['Pacifico', 'cursive'],
+                        'quicksand': ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8E5E9;
+            overflow-x: hidden;
+        }
+        
+        .book-cover {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            height: 80vh;
+            max-height: 800px;
+            background-color: #C76F85;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-spine {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(to right, #BDA8D2, #C76F85);
+            z-index: 5;
+            border-radius: 5px 0 0 5px;
+        }
+        
+        .cover-design {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .polaroid-frame {
+            width: 200px;
+            height: 240px;
+            background: white;
+            padding: 15px 15px 40px 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: rotate(-5deg);
+            transition: all 0.3s ease;
+            position: relative;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .polaroid-frame:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .polaroid-img {
+            transition: transform 0.5s ease;
+        }
+        
+        .polaroid-frame:hover .polaroid-img {
+            transform: scale(1.05);
+        }
+        
+        .polaroid-pin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #E5A4B3;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        
+        .heart-decoration {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            font-size: 30px;
+            color: #E5A4B3;
+            opacity: 0.6;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        .hidden-book {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFF0F3;
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ribbon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+        }
+        
+        .ribbon-content {
+            position: absolute;
+            display: block;
+            width: 225px;
+            padding: 15px 0;
+            background-color: #BDA8D2;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            left: -25px;
+            top: 30px;
+            transform: rotate(45deg);
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #A6D5A8;
+            opacity: 0;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .enter-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .enter-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s;
+        }
+        
+        .enter-btn:hover::after {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="font-quicksand flex items-center justify-center min-h-screen">
+    <!-- Hearts Decorations -->
+    <div class="heart-decoration" style="top: 10%; left: 10%;">❤</div>
+    <div class="heart-decoration" style="top: 15%; right: 15%; animation-delay: 0.5s;">❤</div>
+    <div class="heart-decoration" style="top: 80%; left: 15%; animation-delay: 1s;">❤</div>
+    <div class="heart-decoration" style="top: 75%; right: 10%; animation-delay: 1.5s;">❤</div>
+    
+    <!-- Book Cover Container -->
+    <div class="book-cover" id="bookCover">
+        <div class="book-spine"></div>
+        
+        <div class="cover-design">
+            <div class="ribbon">
+                <span class="ribbon-content">Special</span>
+            </div>
+            
+            <div class="polaroid-frame">
+                <div class="polaroid-pin"></div>
+                <div class="w-full h-full overflow-hidden">
+                    <img src="./images/cover.jpg" alt="Cover Photo" class="polaroid-img w-full h-full object-cover">
+                </div>
+            </div>
+            
+            <h1 class="font-pacifico text-4xl md:text-5xl text-white text-center mb-4 drop-shadow-lg animate__animated animate__fadeIn">Our Photobook</h1>
+            
+            <p class="text-white text-center mb-8 max-w-md animate__animated animate__fadeIn animate__delay-1s font-medium">
+                A collection of our precious moments together ❤
+            </p>
+            
+            <button id="enterBtn" class="enter-btn bg-white text-dark-pink font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 animate__animated animate__fadeIn animate__delay-2s flex items-center gap-2">
+                <span>Open Photobook</span>
+                <i class="fas fa-heart heartbeat text-dark-pink"></i>
+            </button>
+        </div>
+        
+        <!-- Hidden Content to Show After Click -->
+        <div class="hidden-book" id="hiddenBook">
+            <div class="text-center">
+                <h2 class="font-pacifico text-3xl text-dark-pink mb-6">Welcome to Our Memories</h2>
+                <p class="text-gray-700 mb-8 max-w-md font-medium">
+                    Click the button below to explore the beautiful moments we've shared together.
+                </p>
+                <a href="photobook.html" class="bg-dark-pink text-white font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 inline-block">
+                    Begin the Journey
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create confetti elements
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+            
+            // Button click event
+            document.getElementById('enterBtn').addEventListener('click', function() {
+                const hiddenBook = document.getElementById('hiddenBook');
+                hiddenBook.style.transform = 'scale(1)';
+                hiddenBook.style.opacity = '1';
+                
+                // Trigger confetti animation
+                const confetti = document.querySelectorAll('.confetti');
+                confetti.forEach(c => {
+                    c.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                    c.style.animationDelay = `${Math.random() * 2}s`;
+                });
+            });
+        });
+        
+        function createConfetti() {
+            const colors = ['#E5A4B3', '#BDA8D2', '#9CBFD9', '#A6D5A8', '#EFD9A1'];
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            // Random position
+            confetti.style.left = `${Math.random() * 100}%`;
+            
+            // Random color
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Random size
+            const size = Math.random() * 10 + 5;
+            confetti.style.width = `${size}px`;
+            confetti.style.height = `${size}px`;
+            
+            // Random rotation
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            document.body.appendChild(confetti);
+        }
+    </script>
+</body>
+</html>

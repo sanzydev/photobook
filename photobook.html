@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Photobook</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animation library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pastel-pink': '#E5A4B3',
+                        'pastel-purple': '#BDA8D2',
+                        'pastel-blue': '#9CBFD9',
+                        'pastel-green': '#A6D5A8',
+                        'pastel-yellow': '#EFD9A1',
+                        'light-pink': '#F8E5E9',
+                        'dark-pink': '#C76F85'
+                    },
+                    fontFamily: {
+                        'pacifico': ['Pacifico', 'cursive'],
+                        'quicksand': ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom CSS for animations */
+        .photo-container {
+            perspective: 1000px;
+        }
+        
+        .photo-card {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .photo-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .photo-card:hover {
+            transform: rotateY(10deg) translateY(-10px);
+            box-shadow: -15px 20px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .polaroid {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .polaroid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 50%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .photo-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .polaroid:hover .photo-shine {
+            transform: translateX(100%);
+        }
+        
+        .sticker {
+            transition: all 0.3s ease;
+        }
+        
+        .sticker:hover {
+            transform: rotate(10deg) scale(1.1);
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 2s infinite;
+        }
+        
+        .heart-icon {
+            display: inline-block;
+            color: #C76F85;
+            margin: 0 5px;
+        }
+        
+        .note::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            background-color: #FFF0F3;
+            transform: rotate(45deg);
+            z-index: -1;
+        }
+        
+        /* Page turn animation */
+        .page-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-content {
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        
+        /* Glitter effect for special items */
+        @keyframes glitter {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .glitter-effect {
+            position: relative;
+        }
+        
+        .glitter-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0) 70%, rgba(255,255,255,0.4) 75%, rgba(255,255,255,0) 80%);
+            background-size: 200% 200%;
+            animation: glitter-move 5s infinite linear;
+            pointer-events: none;
+        }
+        
+        @keyframes glitter-move {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 200%; }
+        }
+
+        /* Ribbon effect */
+        .ribbon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            z-index: 5;
+            overflow: hidden;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .ribbon-content {
+            position: absolute;
+            display: block;
+            width: 150px;
+            padding: 8px 0;
+            background-color: #E1C4FF;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-size: 14px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            right: -35px;
+            top: 20px;
+            transform: rotate(45deg);
+        }
+
+        /* Heart decorations */
+        .heart-decoration {
+            position: fixed;
+            font-size: 24px;
+            color: #C76F85;
+            opacity: 0.6;
+            z-index: -1;
+            animation: float 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        /* Slide animation for photo cards */
+        .slide-right {
+            animation: slideRight 0.8s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .slide-left {
+            animation: slideLeft 0.8s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes slideRight {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideLeft {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Photo popup styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-container {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .popup-overlay.active .popup-container {
+            transform: scale(1);
+        }
+
+        .popup-image {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background-color: #C76F85;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transform: rotate(0deg);
+            transition: all 0.3s ease;
+        }
+
+        .popup-close:hover {
+            transform: rotate(90deg);
+            background-color: #E5A4B3;
+        }
+
+        .popup-caption {
+            position: absolute;
+            bottom: -60px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            padding: 10px;
+            font-family: 'Pacifico', cursive;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Fade in animation for elements */
+        .fade-in {
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Add cursor pointer to polaroid images */
+        .polaroid {
+            cursor: pointer;
+        }
+
+        /* Button hover effect */
+        .button-hover {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .button-hover::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s;
+        }
+
+        .button-hover:hover::after {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light-pink font-quicksand">
+    <!-- Heart Decorations -->
+    <div class="heart-decoration" style="top: 10%; left: 8%; color: #C76F85;">❤</div>
+    <div class="heart-decoration" style="top: 25%; right: 10%; animation-delay: 0.5s; color: #C76F85;">❤</div>
+    <div class="heart-decoration" style="top: 70%; left: 12%; animation-delay: 1s; color: #C76F85;">❤</div>
+    <div class="heart-decoration" style="top: 80%; right: 15%; animation-delay: 1.5s; color: #C76F85;">❤</div>
+    <div class="heart-decoration" style="top: 40%; left: 90%; animation-delay: 2s; color: #C76F85;">❤</div>
+
+    <!-- Photo Popup Overlay -->
+    <div class="popup-overlay" id="photoPopup">
+        <div class="popup-container">
+            <div class="popup-close" id="popupClose">&times;</div>
+            <img src="" alt="Enlarged photo" class="popup-image" id="popupImage">
+            <div class="popup-caption" id="popupCaption"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl page-wrapper">
+        <div class="page-content">
+            <!-- Header Section -->
+            <header class="text-center mb-10">
+                <h1 class="font-pacifico text-4xl md:text-6xl text-dark-pink animate__animated animate__fadeIn">
+                    Our Photobook
+                </h1>
+                <div class="flex justify-center items-center gap-2 mt-2 animate__animated animate__fadeIn animate__delay-1s">
+                    <div class="h-0.5 w-16 bg-pastel-pink rounded-full"></div>
+                    <p class="text-lg text-pastel-purple font-medium">Sweet Memories</p>
+                    <div class="h-0.5 w-16 bg-pastel-pink rounded-full"></div>
+                </div>
+                <p class="text-gray-700 mt-4 max-w-xl mx-auto animate__animated animate__fadeIn animate__delay-2s">
+                    A collection of our precious moments together, capturing the laughter, love, and joy we've shared.
+                </p>
+            </header>
+            
+            <!-- Main Content -->
+            <main>
+                <!-- Photo Grid Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                    <!-- Photo 1 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-pastel-pink rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo1.jpg" alt="Memory 1" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-heart text-dark-pink text-xl mr-3 mt-1 heartbeat"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-pastel-purple">First Date</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">Remember how nervous we both were? Best day ever!</p>
+                                </div>
+                            </div>
+                            <div class="absolute -top-3 -right-3 sticker">
+                                <div class="w-14 h-14 bg-pastel-yellow rounded-full flex items-center justify-center rotate-12">
+                                    <span class="font-pacifico text-sm text-dark-pink">Sweet!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo 2 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-pastel-blue rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo2.jpg" alt="Memory 2" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-umbrella-beach text-pastel-blue text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-pastel-blue">Beach Day</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">That sunset was as beautiful as you.</p>
+                                </div>
+                            </div>
+                            <div class="absolute -bottom-3 -right-3 sticker">
+                                <div class="w-14 h-14 bg-pastel-blue rounded-full flex items-center justify-center -rotate-12">
+                                    <span class="font-pacifico text-sm text-white">Lovely!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo 3 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-pastel-purple rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo3.jpg" alt="Memory 3" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-coffee text-pastel-purple text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-pastel-purple">Coffee Date</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">I knew I would love you forever that day.</p>
+                                </div>
+                            </div>
+                            <div class="absolute -top-3 -left-3 sticker">
+                                <div class="w-14 h-14 bg-pastel-purple rounded-full flex items-center justify-center rotate-12">
+                                    <span class="font-pacifico text-sm text-white">Cute!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo 4 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-pastel-green rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo4.jpg" alt="Memory 4" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-tree text-pastel-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-pastel-green">Park Picnic</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">The perfect day with the perfect company.</p>
+                                </div>
+                            </div>
+                            <div class="absolute -bottom-3 -left-3 sticker">
+                                <div class="w-14 h-14 bg-pastel-green rounded-full flex items-center justify-center rotate-12">
+                                    <span class="font-pacifico text-sm text-white">Fun!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo 5 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-dark-pink rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo5.jpg" alt="Memory 5" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-gift text-dark-pink text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-dark-pink">Surprise Gift</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">Your smile when you opened it was priceless.</p>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 -right-3 sticker">
+                                <div class="w-14 h-14 bg-dark-pink rounded-full flex items-center justify-center -rotate-12">
+                                    <span class="font-pacifico text-sm text-white">Love!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo 6 -->
+                    <div class="photo-container">
+                        <div class="photo-card bg-white rounded-lg p-4 shadow-lg">
+                            <div class="polaroid bg-white p-2 border-2 border-pastel-yellow rounded">
+                                <div class="w-full h-64 overflow-hidden">
+                                    <img src="./images/photo6.jpg" alt="Memory 6" class="rounded w-full h-full object-cover">
+                                    <div class="photo-shine"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-start">
+                                <i class="fas fa-film text-pastel-yellow text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h3 class="font-pacifico text-xl text-pastel-yellow">Movie Night</h3>
+                                    <p class="text-gray-700 mt-1 font-medium">You fell asleep on my shoulder. Adorable!</p>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 -left-3 sticker">
+                                <div class="w-14 h-14 bg-pastel-yellow rounded-full flex items-center justify-center rotate-12">
+                                    <span class="font-pacifico text-sm text-dark-pink">Star!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Special Note Section -->
+                <div class="relative mx-auto max-w-2xl mb-16 mt-24 opacity-0" id="specialNote">
+                    <div class="relative z-10 bg-white p-8 rounded-lg shadow-lg border-2 border-pastel-pink note glitter-effect">
+                        <h2 class="font-pacifico text-3xl text-center text-dark-pink mb-4">A Note For You</h2>
+                        <p class="text-gray-700 text-center leading-relaxed font-medium">
+                            Every moment with you feels like a beautiful dream. Thank you for filling my life with such wonderful 
+                            memories. I cherish each smile, each laugh, and each second spent with you.
+                            <span class="heart-icon heartbeat">❤</span>
+                        </p>
+                        <div class="mt-6 text-center">
+                            <span class="inline-block font-pacifico text-xl text-pastel-purple">With all my love,</span>
+                        </div>
+                        <div class="text-center mt-2">
+                            <span class="font-pacifico text-xl text-dark-pink">Your Sweetheart</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Button to Create More Memories -->
+                <div class="text-center mt-16 mb-8 opacity-0" id="createButton">
+                    <button class="button-hover bg-dark-pink text-white font-medium py-3 px-10 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 inline-flex items-center gap-2">
+                        <span>Let's Create More Memories</span>
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+            </main>
+            
+            <!-- Footer -->
+            <footer class="text-center mt-20 mb-8">
+                <p class="text-gray-700">Created with 
+                    <i class="fas fa-heart text-dark-pink heartbeat"></i> for you
+                </p>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Script for animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation for photo cards with staggered delay
+            const photoCards = document.querySelectorAll('.photo-card');
+            
+            photoCards.forEach((card, index) => {
+                // Set initial state
+                card.style.transitionDelay = `${index * 0.15}s`;
+                
+                // Animate cards when they come into view
+                setTimeout(() => {
+                    card.classList.add('animate');
+                }, 500 + (index * 150));
+            });
+            
+            // Animation for special note section - fade in when scrolled to
+            const specialNote = document.getElementById('specialNote');
+            const createButton = document.getElementById('createButton');
+            
+            // Function to check if an element is in viewport
+            function isInViewport(element) {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.bottom >= 0
+                );
+            }
+            
+            // Function to handle scroll animations
+            function handleScrollAnimations() {
+                if (isInViewport(specialNote) && specialNote.style.opacity !== '1') {
+                    specialNote.style.transition = 'opacity 1s ease, transform 1s ease';
+                    specialNote.style.opacity = '1';
+                    specialNote.style.transform = 'translateY(0)';
+                }
+                
+                if (isInViewport(createButton) && createButton.style.opacity !== '1') {
+                    createButton.style.transition = 'opacity 1s ease, transform 1s ease';
+                    createButton.style.opacity = '1';
+                    createButton.style.transform = 'translateY(0)';
+                }
+            }
+            
+            // Initial check and set up scroll listener
+            handleScrollAnimations();
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Set initial positions for animated elements
+            specialNote.style.transform = 'translateY(30px)';
+            createButton.style.transform = 'translateY(30px)';
+            
+            // Photo popup functionality
+            const photoPopup = document.getElementById('photoPopup');
+            const popupImage = document.getElementById('popupImage');
+            const popupClose = document.getElementById('popupClose');
+            const popupCaption = document.getElementById('popupCaption');
+            const allPolaroids = document.querySelectorAll('.polaroid');
+            
+            // Open popup when clicking on a polaroid
+            allPolaroids.forEach(polaroid => {
+                polaroid.addEventListener('click', function() {
+                    const imgSrc = this.querySelector('img').src;
+                    const cardTitle = this.closest('.photo-card').querySelector('h3').textContent;
+                    const cardDesc = this.closest('.photo-card').querySelector('p').textContent;
+                    
+                    popupImage.src = imgSrc;
+                    popupCaption.textContent = cardTitle + ' - ' + cardDesc;
+                    photoPopup.classList.add('active');
+                    
+                    // Prevent body scrolling when popup is open
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            // Close popup when clicking the close button
+            popupClose.addEventListener('click', function() {
+                photoPopup.classList.remove('active');
+                
+                // Re-enable body scrolling
+                document.body.style.overflow = '';
+            });
+            
+            // Close popup when clicking outside the image
+            photoPopup.addEventListener('click', function(e) {
+                if (e.target === photoPopup) {
+                    photoPopup.classList.remove('active');
+                    
+                    // Re-enable body scrolling
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && photoPopup.classList.contains('active')) {
+                    photoPopup.classList.remove('active');
+                    
+                    // Re-enable body scrolling
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
